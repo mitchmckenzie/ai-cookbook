@@ -1,9 +1,10 @@
+from pydantic import BaseModel
+from vertex_client import get_vertex_openai_client
+from dotenv import load_dotenv
 import os
 
-from openai import OpenAI
-from pydantic import BaseModel
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+load_dotenv()
+client = get_vertex_openai_client()
 
 
 # --------------------------------------------------------------
@@ -22,7 +23,7 @@ class CalendarEvent(BaseModel):
 # --------------------------------------------------------------
 
 completion = client.beta.chat.completions.parse(
-    model="gpt-4o",
+    model=os.getenv("GCP_MODEL_NAME"),
     messages=[
         {"role": "system", "content": "Extract the event information."},
         {

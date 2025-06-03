@@ -137,7 +137,7 @@ class BlogOrchestrator:
     def get_plan(self, topic: str, target_length: int, style: str) -> OrchestratorPlan:
         """Get orchestrator's blog structure plan"""
         completion = client.beta.chat.completions.parse(
-            model=model,
+            model=os.getenv("GCP_MODEL_NAME"),
             messages=[
                 {
                     "role": "system",
@@ -169,7 +169,7 @@ class BlogOrchestrator:
         )
 
         completion = client.beta.chat.completions.parse(
-            model=model,
+            model=os.getenv("GCP_MODEL_NAME"),
             messages=[
                 {
                     "role": "system",
@@ -199,7 +199,7 @@ class BlogOrchestrator:
         )
 
         completion = client.beta.chat.completions.parse(
-            model=model,
+            model=os.getenv("GCP_MODEL_NAME"),
             messages=[
                 {
                     "role": "system",

@@ -46,7 +46,7 @@ class SecurityCheck(BaseModel):
 async def validate_calendar_request(user_input: str) -> CalendarValidation:
     """Check if the input is a valid calendar request"""
     completion = await client.beta.chat.completions.parse(
-        model=model,
+        model=os.getenv("GCP_MODEL_NAME"),
         messages=[
             {
                 "role": "system",
@@ -62,7 +62,7 @@ async def validate_calendar_request(user_input: str) -> CalendarValidation:
 async def check_security(user_input: str) -> SecurityCheck:
     """Check for potential security risks"""
     completion = await client.beta.chat.completions.parse(
-        model=model,
+        model=os.getenv("GCP_MODEL_NAME"),
         messages=[
             {
                 "role": "system",

@@ -1,11 +1,12 @@
+from vertex_client import get_vertex_openai_client
+from dotenv import load_dotenv
 import json
 import os
-
 import requests
-from openai import OpenAI
 from pydantic import BaseModel, Field
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+load_dotenv()
+client = get_vertex_openai_client()
 
 """
 docs: https://platform.openai.com/docs/guides/function-calling
@@ -23,6 +24,20 @@ def get_weather(latitude, longitude):
     )
     data = response.json()
     return data["current"]
+
+
+def get_lat_long(location):
+    """Returns the latitude and longitude for a given location name using Open-Meteo's geocoding API."""
+    response = requests.get(
+        f"https://geocoding-api.open-meteo.com/v1/search?name={location}&count=1"
+    )
+    data = response.json()
+    if data.get("results"):
+        lat = data["results"][0]["latitude"]
+        lon = data["results"][0]["longitude"]
+        return {"latitude": lat, "longitude": lon}
+    else:
+        raise ValueError(f"Location '{location}' not found.")
 
 
 # --------------------------------------------------------------
@@ -46,7 +61,23 @@ tools = [
             },
             "strict": True,
         },
-    }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_lat_long",
+            "description": "Get latitude and longitude for a given location name.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {"type": "string"},
+                },
+                "required": ["location"],
+                "additionalProperties": False,
+            },
+            "strict": True,
+        },
+    },
 ]
 
 system_prompt = "You are a helpful weather assistant."
@@ -57,7 +88,7 @@ messages = [
 ]
 
 completion = client.chat.completions.create(
-    model="gpt-4o",
+    model=os.getenv("GCP_MODEL_NAME"),
     messages=messages,
     tools=tools,
 )
@@ -76,6 +107,8 @@ completion.model_dump()
 def call_function(name, args):
     if name == "get_weather":
         return get_weather(**args)
+    elif name == "get_lat_long":
+        return get_lat_long(**args)
 
 
 for tool_call in completion.choices[0].message.tool_calls:
@@ -87,6 +120,7 @@ for tool_call in completion.choices[0].message.tool_calls:
     messages.append(
         {"role": "tool", "tool_call_id": tool_call.id, "content": json.dumps(result)}
     )
+
 
 # --------------------------------------------------------------
 # Step 4: Supply result and call model again
@@ -103,9 +137,9 @@ class WeatherResponse(BaseModel):
 
 
 completion_2 = client.beta.chat.completions.parse(
-    model="gpt-4o",
+    model=os.getenv("GCP_MODEL_NAME"),
     messages=messages,
-    tools=tools,
+    # tools=tools,
     response_format=WeatherResponse,
 )
 

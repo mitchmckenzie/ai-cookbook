@@ -1,10 +1,12 @@
 import json
 import os
 
-from openai import OpenAI
+from vertex_client import get_vertex_openai_client
+from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+load_dotenv()
+client = get_vertex_openai_client()
 
 """
 docs: https://platform.openai.com/docs/guides/function-calling
@@ -55,7 +57,7 @@ messages = [
 ]
 
 completion = client.chat.completions.create(
-    model="gpt-4o",
+    model=os.getenv("GCP_MODEL_NAME"),
     messages=messages,
     tools=tools,
 )
@@ -97,7 +99,7 @@ class KBResponse(BaseModel):
 
 
 completion_2 = client.beta.chat.completions.parse(
-    model="gpt-4o",
+    model=os.getenv("GCP_MODEL_NAME"),
     messages=messages,
     tools=tools,
     response_format=KBResponse,
@@ -121,7 +123,7 @@ messages = [
 ]
 
 completion_3 = client.beta.chat.completions.parse(
-    model="gpt-4o",
+    model=os.getenv("GCP_MODEL_NAME"),
     messages=messages,
     tools=tools,
 )

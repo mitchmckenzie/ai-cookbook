@@ -67,7 +67,7 @@ def extract_event_info(user_input: str) -> EventExtraction:
     date_context = f"Today is {today.strftime('%A, %B %d, %Y')}."
 
     completion = client.beta.chat.completions.parse(
-        model=model,
+        model=os.getenv("GCP_MODEL_NAME"),
         messages=[
             {
                 "role": "system",
@@ -92,7 +92,7 @@ def parse_event_details(description: str) -> EventDetails:
     date_context = f"Today is {today.strftime('%A, %B %d, %Y')}."
 
     completion = client.beta.chat.completions.parse(
-        model=model,
+        model=os.getenv("GCP_MODEL_NAME"),
         messages=[
             {
                 "role": "system",
@@ -115,7 +115,7 @@ def generate_confirmation(event_details: EventDetails) -> EventConfirmation:
     logger.info("Generating confirmation message")
 
     completion = client.beta.chat.completions.parse(
-        model=model,
+        model=os.getenv("GCP_MODEL_NAME"),
         messages=[
             {
                 "role": "system",

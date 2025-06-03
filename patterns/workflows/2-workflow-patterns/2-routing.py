@@ -75,7 +75,7 @@ def route_calendar_request(user_input: str) -> CalendarRequestType:
     logger.info("Routing calendar request")
 
     completion = client.beta.chat.completions.parse(
-        model=model,
+        model=os.getenv("GCP_MODEL_NAME"),
         messages=[
             {
                 "role": "system",
@@ -98,7 +98,7 @@ def handle_new_event(description: str) -> CalendarResponse:
 
     # Get event details
     completion = client.beta.chat.completions.parse(
-        model=model,
+        model=os.getenv("GCP_MODEL_NAME"),
         messages=[
             {
                 "role": "system",
@@ -126,7 +126,7 @@ def handle_modify_event(description: str) -> CalendarResponse:
 
     # Get modification details
     completion = client.beta.chat.completions.parse(
-        model=model,
+        model=os.getenv("GCP_MODEL_NAME"),
         messages=[
             {
                 "role": "system",

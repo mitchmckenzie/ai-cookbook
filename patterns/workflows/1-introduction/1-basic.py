@@ -1,12 +1,13 @@
+from vertex_client import get_vertex_openai_client
+from dotenv import load_dotenv
 import os
 
-from openai import OpenAI
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+load_dotenv()
+client = get_vertex_openai_client()
 
 
 completion = client.chat.completions.create(
-    model="gpt-4o",
+    model=os.getenv("GCP_MODEL_NAME"),
     messages=[
         {"role": "system", "content": "You're a helpful assistant."},
         {
